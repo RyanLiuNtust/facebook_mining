@@ -1,14 +1,29 @@
 import facebook
-import numpy
+import sys
 
-def getFriends(graph):
-	print "get friends....\n";
-	jsonFriends = graph.get_connections('me', 'friends')['data']
-	friends = [(friend['id'], friend['name'],) for friend in jsonFriends]
-	return friends
+auth_access_token = "CAACEdEose0cBAGorutD9JZCp6lkCz8p10DdgJXbJ6Nb5x0AOXUN8FJLCwzXR6ZAMZCDpuZBfWZBSPPbr5ecp2ReQM27FYp80a2ciOExxqOkY0okaHH0gbrmlxYWblKlZBVZCfCjdXRookx5ZC1BM041ue9JsMV6x5RBGNDONJxUfb8MTzj4p4WsSCmvZClECMPpfW8MhOT3ZA4XQZDZD"
 
-auth_access_token = "CAACEdEose0cBAM4ieZCok6FwFUpfPZBCEGoHP91jAeIkt1b8lDAwZCmq7kZBYCrFKzj7E4OuNt3yZAsl0LNyQyORBhZBoQZAnl9ZAcREsOqNtJuqOWNEpsHTzE6lveXTqIvht4SpoYo2wlcZC8PAMkw5up0xRqDS1S4f6E4iHMWetDu6m2ZCgMok4jyo4hHZBygbWkZD"
+def getMyFriends(graph):
+    print "get friends....\n"
+    friendlist = graph.get_connections('me','friends')['data']
+    friends = [(friend['id'], friend['name'],) for friend in friendlist]
+    print 'total of friend = %d\n' %len(friends)
+    return friends
 
-graph = facebook.GraphAPI(auth_access_token)
-friends = getFriends(graph)
-print friends
+def getMyFeed(graph):
+    print "get my feed....\n"
+    feed_dict = graph.get_connections('me', 'feed')
+    return feed_dict
+
+def cvtDict2Chinese(dict):
+    return str(dict).decode('unicode-escape')
+
+def main():
+    graph = facebook.GraphAPI(auth_access_token)
+    friends = getMyFriends(graph)
+    feed = getMyFeed(graph)
+    print cvtDict2Chinese(feed)
+
+if __name__ == "__main__":
+    main()
+
