@@ -1,3 +1,6 @@
+#version 1.0
+#Author RyanLiuNtust
+#Time 3/29
 import facebook
 import sys
 
