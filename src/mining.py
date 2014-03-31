@@ -5,8 +5,8 @@ import os, sys, facebook
 lib_path = os.path.abspath('./../include/')
 sys.path.append(lib_path)
 from fbGrepper import *
-
-auth_access_token = "CAACEdEose0cBAAiniVjzuSvc3nN24ZAicYuVMTLADiZB1S5fYPqBe24XqSk0BEbndg2lF9AxseuFD2tjraLJOoBCZATledOvIMDqbeFfSNCnPF9qtnBT70FRv371mUPIhb6UZC8ef8j8NOvitkkl4YanHXJI0qLv7GBZAPZBzn63gW3ZCSEKA8etJeE3IN9QcyYc7YcmzGEYgZDZD"
+from facebook_mining import *
+auth_access_token = "CAACEdEose0cBAKCZB6ZBvgWJl0an5lviv6fa3dqQoNeTP7a150e48cQPGk8RDqH5mz07pRNYlovgE3tln14BcF6hi1uOhx7cnmuPUr0WjvMCsKZAfceifspYwMP8rDGyuGZBdrhNgWVL8H0SFcZAvxjByoV0x1cMjkPkFiVQypFnck6leyphjqqdcBZAmRWxRZBcRrbE46k8AZDZD"
 
 def main():
     graph = facebook.GraphAPI(auth_access_token)

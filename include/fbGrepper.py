@@ -46,17 +46,8 @@ def get_my_friends_status(graph, friends):
         current_friend += 1
     return friendlist_status
 
-def get_likes(friendlist_status):
-    print "get likes info about statuses...."
-    friendlist_like = []
-    total_statuses = len(friendlist_status)
-    current_status = 1
-    for s in friendlist_status:
-        print "%d/%d...." %(current_status, total_statuses)
-        status = s[1]
-        for post in status:
-            if 'message' in post and 'likes' in post:
-                #save nessage for testing,and consider whether the corresponding comment need to be saved
-                friendlist_like.append((post['message'], post['likes']))
-        current_status += 1
-    return friendlist_like
+def get_my_friends_gender(friendlist_about):
+    print "get my friend gender...."
+    for about in friendlist_about:
+        name_gender_set = {about['name'], about['gender']}
+    return name_gender_set
