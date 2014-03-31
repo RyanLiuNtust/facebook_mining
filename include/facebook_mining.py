@@ -1,3 +1,6 @@
+#Version 0.1
+#Author RyanLiuNtust
+#Time 3/31
 import os, sys, facebook
  
 lib_path = os.path.abspath('./')
@@ -9,16 +12,10 @@ def get_heterosexual(gender):
         return 'male'
 
 def addData2Dict(key, val, dict):
-    value = []
-    #need to check whether the type of val is list
-    if not isinstance(val, list):
-        value = [val]
-    else:
-        value = val
     if not key in dict:
-        dict[key] = value
-    else:
-        dict[key].append(value)
+        dict[key] = []
+    dict[key].append(val)
+    return dict
 
 #friend_like_dict
 #id:[message, likes]
@@ -31,22 +28,23 @@ def get_likes(friendlist_status):
         print "%d/%d...." %(current_status, total_statuses)
         author_id = s[0]
         status = s[1]
-        friend_like_dict = {author_id:[]}
+        friend_like_dict[author_id] = []
         for post in status:
             if 'message' in post and 'likes' in post:
                 #save nessage for testing,and consider whether the corresponding comment need to be saved
-                val = [post['message'], post['likes']]
-                print 1
-                addData2Dict(author_id, val,  friend_like_dict)
+                val = (post['message'], post['likes'])
+                friend_like_dict = addData2Dict(author_id, val, friend_like_dict)
+                #print len(friend_like_dict)
         current_status += 1
     return friend_like_dict
 
-def heterosexual_post(posts, genderlist):
+def heterosexual_post(posts, id_gender_dict):
     print "mining statuses....."
     total_post = len(posts)
     current_post = 1
-    for post in posts:
+    for key in posts.keys():
         print "%d/%d" %(current_post, total_post)
-        author_id = post.keys()
-        opp_gender = get_heterosexual(author_id)
-        
+        author_id = key
+        opp_gender = get_heterosexual(id_gender_dict[author_id])
+        #print "post %s" %posts[key]
+        current_post += 1

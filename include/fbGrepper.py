@@ -1,3 +1,7 @@
+#version 0.1
+#Author RyanLiuNtust
+#Time 3/31
+
 import facebook
 import sys
 def enum(**enums):
@@ -30,6 +34,7 @@ def get_my_friends_about(graph, friends):
         print "%d/%d....." %(current_friend, total_friend)
         friendlist_about.append(graph.get_object(friend[0]))
         current_friend += 1
+        #break
     return friendlist_about
 
 #statuses is defined that you post on your own wall
@@ -44,10 +49,13 @@ def get_my_friends_status(graph, friends):
         id = friend[0]
         friendlist_status.append((id, graph.get_connections(id, 'statuses')['data']))
         current_friend += 1
+        #if current_friend == 2:
+		#	break
     return friendlist_status
 
 def get_my_friends_gender(friendlist_about):
     print "get my friend gender...."
+    id_gender_dict = dict()
     for about in friendlist_about:
-        name_gender_set = {about['name'], about['gender']}
-    return name_gender_set
+        id_gender_dict[about['id']] =  about['gender']
+    return id_gender_dict
