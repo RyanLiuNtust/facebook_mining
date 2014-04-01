@@ -49,13 +49,20 @@ def get_my_friends_status(graph, friends):
         id = friend[0]
         friendlist_status.append((id, graph.get_connections(id, 'statuses')['data']))
         current_friend += 1
-        #if current_friend == 2:
-		#	break
+        if current_friend == 50:
+			break
     return friendlist_status
 
 def get_my_friends_gender(friendlist_about):
     print "get my friend gender...."
     id_gender_dict = dict()
+    current_about = 1
+    total_about = len(friendlist_about)
     for about in friendlist_about:
-        id_gender_dict[about['id']] =  about['gender']
+        print "%d/%d....." %(current_about, total_about)
+        if 'gender' in about:
+            id_gender_dict[about['id']] =  about['gender']
+        else:
+            id_gender_dict[about['id']] = "non"
+        current_about += 1
     return id_gender_dict
