@@ -6,7 +6,7 @@ lib_path = os.path.abspath('./../include/')
 sys.path.append(lib_path)
 from fbGrepper import *
 from facebook_mining import *
-auth_access_token = "CAACEdEose0cBAM14JUHPgZAtmoCVJTXsEjPi4H0UJ7JIZCZChogALBSkt2TnZBfAmu62LTbZBuAZCAW0NX5ShYjLKbdt3Rnxb11ucA3IP0eLmNUeeZC9oRFl4HftnM9O5MJ7VMW6upyF34R2Sm2oocjZBgYWFd5rB92cY9sT5kmbbZB7JGItLEapbTDAJJ5ZAUdWOp81hZARdkMpgZDZD"
+auth_access_token = "CAACEdEose0cBAKoO7dwxaHIvL8vkUBepLlBkV9nLDUtyoXxvEZBUjquWS59TGXDZB1ZBZBULAVbYLH8quy6DmmTTHQiaPRNTz2rxRSiT5KCO6E06y9q6ZBVcoxMqz2r9KfUIGLX2WHQ00N98CVh1jpj9nEefbhjcytOEZBzZBxq7EsH66dUIvNRLBDpbNAqG3VSRBBNjmtUPwZDZD"
 
 def main():
     graph = facebook.GraphAPI(auth_access_token)
@@ -16,13 +16,9 @@ def main():
     #print cvtDict2Chinese(feed)
     friendlist_status = get_my_friends_status(graph, friends)
     #print cvtDict2Chinese(friendlist_status)
-    likes_dict = get_likes(friendlist_status)
+    likes_dict = get_status_info(friendlist_status)
     heterosexual_post(likes_dict, get_my_friends_gender(get_my_friends_about(graph, friends)))
     #print cvtDict2Chinese(likeslist)
-    print 'length = %d' %len(likes_dict)
-    for likes in likes_dict:
-		print "likeslist..........\n"
-		print likes
     #friendlist_about = get_my_friends_about(graph, friends)
     #for about in friendlist_about:
     #    if 'gender' in about:
