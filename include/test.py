@@ -1,0 +1,2 @@
+import facebook
+facebook.GraphicAPI()
