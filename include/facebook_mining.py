@@ -29,24 +29,28 @@ def wrt_heterosexual_info(heterosexual_post, filename):
 
 def calulate_like_comment(heterosexual_post, limit):
     heterosexual_dict = dict()
-    for key in heterosexual_post.keys():
-        print len(heterosexual_post[key])
-        for msg in heterosexual_post[key]:
+    for author_id in heterosexual_post.keys():
+        print len(heterosexual_post[author_id])
+        for msg in heterosexual_post[author_id]:
             updated_time = msg['updated_time']
             for like_id in msg['like_ids']:
                 if like_id not in heterosexual_dict:
                     heterosexual_dict[like_id] = {'likes':[], 'comments':[]}
                 heterosexual_dict[like_id]['likes'].append(updated_time)
 
-            for comment_id in msg["comment_ids"]:
+            for comment_data in msg["comment_datas"]:
+                comment_id = comment_data['comment_id']
+                comment_time = comment_data['comment_time']
                 if comment_id not in heterosexual_dict:
                     heterosexual_dict[comment_id] = {'likes':[], 'comments':[]}
-                heterosexual_dict[comment_id]['comments'].append(1)
+                heterosexual_dict[comment_id]['comments'].append(comment_time)
+
             for id in heterosexual_dict.keys():
-                print '%s' %id
+                print 'post_author_id = %s' %id
                 for time in heterosexual_dict[id]['likes']:
                     print 'likes = %s' %time
-                #print '%s  likes = %d, comments = %d' %(id, len(heterosexual_dict[id]['likes']), len(heterosexual_dict[id]['comments']))
+                for time in heterosexual_dict[id]['comments']:
+					print 'created_time = %s' %time
 
 #friend_status_info_dict format is following:
 #author_id:[message_id, likes] or [message_id, likes, comments] depend on whether the comment is exist
@@ -80,13 +84,14 @@ def heterosexual_post(posts, id_gender_dict, graph):
     for key in posts.keys():
         print "person %d/%d" %(current_person_post, total_person_post)
         author_id = key
-        opp_gender = get_heterosexual(id_gender_dict[author_id])
+        author_gender = id_gender_dict[author_id]
+        opp_gender = get_heterosexual(author_gender)
         total_post = len(posts[author_id])
         current_post = 1
         for post_msg in posts[author_id]:
             print "%d/%d....." %(current_post, total_post)
             heterosexual_likeslist = []
-            heterosexual_commentlist = []
+            heterosexual_comment_time_list = []
             post_id = post_msg['post_id']
             post_time = post_msg['updated_time']
             if 'likes' in post_msg:
@@ -100,18 +105,19 @@ def heterosexual_post(posts, id_gender_dict, graph):
                 comments = post_msg['comments']['data']
                 for obj in comments:
                     obj_id = obj['from']['id']
-                    #get the created_time
+                    obj_created_time = obj['created_time']
                     obj_profile = graph.get_object(obj_id)
                     if 'gender' in obj_profile and obj_profile['gender'] == opp_gender:
-                        heterosexual_commentlist.append(obj_id)
+						heterosexual_comment_time_list.append({'comment_id':obj_id, 'comment_time':obj_created_time})
 
-            val =  {'id':post_id, 'updated_time':post_time, 'like_ids':heterosexual_likeslist, 'comment_ids':heterosexual_commentlist }
+            val = {'author_gender':author_gender, 'post_id':post_id, 'updated_time':post_time,
+				  'like_ids':heterosexual_likeslist,'comment_datas':heterosexual_comment_time_list }
             add_val_dictlist(author_id, val, heterosexual_post)
 
             print 'like size %d, ids %s' %(len(heterosexual_post[author_id][current_post-1]['like_ids']),
                                                heterosexual_post[author_id][current_post-1]['like_ids'])
-            print 'comment size %d, ids %s' %(len(heterosexual_post[author_id][current_post-1]['comment_ids']),
-                                                  heterosexual_post[author_id][current_post-1]['comment_ids'])
+            print 'comment size %d, ids %s' %(len(heterosexual_post[author_id][current_post-1]['comment_datas']),
+                                                  heterosexual_post[author_id][current_post-1]['comment_datas'])
             current_post += 1
             #print heterosexual_post
             if(current_post == 5):
