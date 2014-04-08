@@ -17,14 +17,18 @@ def add_val_dictlist(key, val, dict):
     dict[key].append(val)
     return dict
 
-def wrt_heterosexual_info(heterosexual_post, filename):
+def wrt_heterosexual_info(author_id, author_gender, heterosexual_dict, filename):
     f = open(filename, 'wb')
-    for key in heterosexual_post.keys():
-        f.write(str(key) + '\n')
-        for val in heterosexual_post[key]:
-            for msg in val.values():
-                for like_id in msg['like_ids']:
-                    f.write(str(like_id) + ',')
+    f.write('author_id:' + str(author_id) + ',author_gender,' + str(author_gender) + '\n')
+    for id in heterosexual_dict.keys():
+        f.write(id + ',likes,' + str(len(heterosexual_dict[id]['likes'])))
+        for time in heterosexual_dict[id]['likes']:
+            f.write(',' + str(time))
+        f.write(',comments,' + str(len(heterosexual_dict[id]['comments'])))
+        for time in heterosexual_dict[id]['comments']:
+            f.write(',' + str(time))
+        f.write('\n')
+    f.write('\n')
     f.close()
 
 def calulate_like_comment(heterosexual_post, limit):
@@ -51,6 +55,7 @@ def calulate_like_comment(heterosexual_post, limit):
                     print 'likes = %s' %time
                 for time in heterosexual_dict[id]['comments']:
 					print 'created_time = %s' %time
+    return heterosexual_dict
 
 #friend_status_info_dict format is following:
 #author_id:[message_id, likes] or [message_id, likes, comments] depend on whether the comment is exist
@@ -64,7 +69,8 @@ def get_status_info(friendlist_status):
         friend_status_info_dict[author_id] = []
         for post in status:
             if 'likes' in post and 'comments' in post:
-                val = {'updated_time': post['updated_time'], 'post_id':post['id'], 'likes':post['likes'], 'comments':post['comments']}
+                val = {'updated_time': post['updated_time'], 'post_id':post['id'],
+					   'likes':post['likes'], 'comments':post['comments']}
             elif 'likes' in post:
                 val = {'updated_time': post['updated_time'], 'post_id':post['id'], 'likes':post['likes']}
             friend_status_info_dict = add_val_dictlist(author_id, val, friend_status_info_dict)
@@ -120,10 +126,12 @@ def heterosexual_post(posts, id_gender_dict, graph):
                                                   heterosexual_post[author_id][current_post-1]['comment_datas'])
             current_post += 1
             #print heterosexual_post
-            if(current_post == 5):
-                break
-        #wrt_heterosexual_info(heterosexual_post, "t.csv")
-        calulate_like_comment(heterosexual_post, 1)
+            #if(current_post == 5):
+            #    break
+        filename = str(current_person_post) + '.csv'
+        wrt_heterosexual_info(author_id, author_gender,
+                              calulate_like_comment(heterosexual_post, 1),
+                              filename)
         current_person_post += 1
         print "author_id: %s total_post %s" %(author_id, len(posts[key]))
     return heterosexual_post

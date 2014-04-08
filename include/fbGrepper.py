@@ -43,15 +43,17 @@ def get_my_friends_about(graph, friends):
 
 #statuses is defined that you post on your own wall
 #friendlist_status save as [id, status_list corresponding to id]
-def get_my_friends_status(graph, friends):
+def get_my_friends_status(graph, friends, limit_num_status = None):
     print "get friends statuses...."
+    if limit_num_status is None:
+        limit_num_status = 25
     friendlist_status = []
     total_friend = len(friends)
     current_friend = 1
     for friend in friends:
         print "%d/%d....." %(current_friend, total_friend)
         id = friend[0]
-        statuses = graph.get_connections(id, 'statuses')['data']
+        statuses = graph.get_connections(id, 'statuses', limit = limit_num_status)['data']
         friendlist_status.append((id, statuses))
         current_friend += 1
         if(DEBUG_MODE):
