@@ -5,7 +5,7 @@
 import facebook
 import sys
 import csv
-DEBUG_MODE = True
+DEBUG_MODE = False
 
 def enum(**enums):
     return type('Enum', (), enums)

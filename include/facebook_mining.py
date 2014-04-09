@@ -82,14 +82,17 @@ def get_status_info(friendlist_status):
 #            {'id':'post_id(2)', 'updated_time':time, 'like_ids':[heterosexual_ids], 'commen_ids':[heterosexual_ids]},
 #             .....]}
 #heterosexual_post is to remose some redudant attribute in posts
-def heterosexual_post(posts, id_gender_dict, graph):
+def heterosexual_post(posts, id_gender_dict, graph, start_person = None):
     print "mining post in statuses....."
+    if start_person is None:
+        start_person = 0
     total_person_post = len(posts)
-    current_person_post = 1
-    heterosexual_post = dict()
-    for key in posts.keys():
-        print "person %d/%d" %(current_person_post, total_person_post)
-        author_id = key
+    author_id_list = posts.keys()
+
+    for current_person_post in range(start_person, total_person_post):
+        print "person %d/%d" %(current_person_post + 1, total_person_post)
+        heterosexual_post = dict()
+        author_id = author_id_list[current_person_post]
         author_gender = id_gender_dict[author_id]
         opp_gender = get_heterosexual(author_gender)
         total_post = len(posts[author_id])
@@ -128,12 +131,12 @@ def heterosexual_post(posts, id_gender_dict, graph):
             #print heterosexual_post
             #if(current_post == 5):
             #    break
-        filename = str(current_person_post) + '.csv'
+        filename = str(current_person_post + 1) + '.csv'
         wrt_heterosexual_info(author_id, author_gender,
                               calulate_like_comment(heterosexual_post, 1),
                               filename)
         current_person_post += 1
-        print "author_id: %s total_post %s" %(author_id, len(posts[key]))
+        #print "author_id: %s total_post %s" %(author_id, len(posts[key]))
     return heterosexual_post
 
 
