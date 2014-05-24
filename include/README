@@ -1,0 +1,6 @@
+(name, gender) -> heterosexual in (like, comment) in corresponding status
+return {author_id: {status_id:id,
+                    like_id:id}
+
+author_id:[post_1:{likes:[ids], comments:[ids]}]
+
