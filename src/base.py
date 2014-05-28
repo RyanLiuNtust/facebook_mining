@@ -7,7 +7,7 @@ class Bunch(dict):
         dict.__init__(self, kwargs)
         self.__dict__ = self
 
-def load_like_comment():
+def load_like_comment(filename):
     """""Load and return the heterosexual's all likes and comments corresponding to author
 
     ==========================================================
@@ -16,7 +16,7 @@ def load_like_comment():
     ===========================================================
     Examples
     """""
-    with open('data/1.csv') as csv_file:
+    with open(filename) as csv_file:
         data_file = csv.reader(csv_file)
         temp = next(data_file)
         n_hex = int(temp[0])
