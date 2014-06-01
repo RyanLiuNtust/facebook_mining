@@ -1,0 +1,12 @@
+*.zip
+*.pyc
+*.swp
+./../include/*.pyc
+
+# folders
+csv/
+data/
+result/
+all/
+normalize/
+unnormalize/

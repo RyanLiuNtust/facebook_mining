@@ -6,7 +6,6 @@ from os.path import isfile, join
 
 def ls(dir, ext, is_only_filename):
     files = []
-    print is_only_filename
     for file in os.listdir(dir):
         if file.endswith(ext):
             if(is_only_filename in ['true']):
@@ -15,11 +14,15 @@ def ls(dir, ext, is_only_filename):
             else:
                 files.append(file)
     return files
+def check_create_folder(dir):
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
 
 data_dir = "data/"
 save_dir = "result/"
 filenames = ls(data_dir, "csv", "false")
-
+#filenames = ["test.csv"]
+check_create_folder(save_dir)
 for filename in filenames:
     name, ext = os.path.splitext(filename)
     src_name = data_dir + filename
@@ -27,4 +30,4 @@ for filename in filenames:
     database = load_like_comment(src_name)
     n_clusters = 3
     if len(database.data) > n_clusters:
-       draw_kmeans(database.data, n_clusters, dst_name)
+       draw_kmeans(database.data, n_clusters, database.target_gender, dst_name,[0.4, 0.6], True) 

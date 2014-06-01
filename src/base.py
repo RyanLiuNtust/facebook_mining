@@ -10,10 +10,10 @@ class Bunch(dict):
 def load_like_comment(filename):
     """""Load and return the heterosexual's all likes and comments corresponding to author
 
-    ==========================================================
-    ||     data        ||  source ||    target       ||
-       likes   comments   hex_ID    author_ID  gender
-    ===========================================================
+    ==============================================================
+    ||     data        ||  source ||          target            ||
+       likes   comments   hex_ID    target_id(author_ID)  gender
+    ==============================================================
     Examples
     """""
     with open(filename) as csv_file:
