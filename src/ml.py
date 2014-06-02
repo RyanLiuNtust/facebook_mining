@@ -73,14 +73,24 @@ def plot_cov_ellipse(cov, pos, nstd=2, ax=None, **kwargs):
     # Width and height are "full" widths, not radius
     width, height = 2 * nstd * np.sqrt(vals)
     ellip = Ellipse(xy=pos, width=width, height=height, angle=theta, fill=False, **kwargs)
-    print width
-    print height
     ax.add_artist(ellip)
-    return ellip
+    return (ellip, width, height)
+
+def outlier(data, var_x, var_y):
+    indexs = []
+    mean_x = data[:,0].mean()
+    mean_y = data[:,1].mean()
+    for index, d in enumerate(data):
+        if ((d[0]-mean_x)**2/var_x**2 + (d[1]-mean_y)**2/var_y**2) <= 1:
+        #if d[0] < (mean_x + var_x) and d[0] > (mean_x - var_x) and d[1] < (mean_y + var_y) and d[1] > (mean_y - var_y):
+            continue
+        indexs.append(index)
+    return indexs
 
 def draw_kmeans(data, n_cluster, author_gender, save_fig_name, weight, is_normalize):
     legend_x = 10
     legend_y = 5
+    is_find_outlier = True
     if is_normalize == "True":
         data[:, 0] = weight[0] * data[:, 0]
         data[:, 1] = weight[1] * data[:, 1]
@@ -94,18 +104,24 @@ def draw_kmeans(data, n_cluster, author_gender, save_fig_name, weight, is_normal
     number_of_person = len(data)
     mark_shape = ['o', '^', 's', '*']
     mark_color = ['b', 'g', 'r', 'y']
-    mark_labels = ['low', 'medium', 'high', 'highest']
+    mark_labels = ['low', 'medium', 'high', 'outlier']
+
     kmeans = cluster.KMeans(n_clusters=n_cluster)
     kmeans.fit(data)
     labels = kmeans.labels_
     centroids = kmeans.cluster_centers_
 
-
     for i, sorted_index in enumerate(np.argsort(centroids[:,0])):
-        ds = data[np.where(labels==sorted_index)]
+        original_indexs = np.where(labels==sorted_index)
+        ds = data[original_indexs]
         pyplot.plot(ds[:,0], ds[:,1], mark_shape[i], color=mark_color[i], label=mark_labels[i])
         if mark_labels[i] == 'high':
-            plot_point_cov(ds[:,:])
+            elipse, width, height = plot_point_cov(ds[:,:])
+            if is_find_outlier:
+                indexs = outlier(ds[:,:], width/2, height/2)
+                pyplot.plot(ds[indexs,0], ds[indexs,1], mark_shape[3], color=mark_color[3], label=mark_labels[3])
+                print "outlier(original indexs):", original_indexs[0][indexs]
+                print data[original_indexs[0][indexs]]
         lines = pyplot.plot(centroids[sorted_index,0], centroids[sorted_index,1], 'kx', color=mark_color[i])
         pyplot.setp(lines, ms=10.0)
         pyplot.setp(lines, mew=2.0)
@@ -123,6 +139,6 @@ def draw_kmeans(data, n_cluster, author_gender, save_fig_name, weight, is_normal
     frame.set_facecolor('0.90')
 
     if save_fig_name:
-        print 'The figuare save as ' + save_fig_name
         pyplot.savefig(save_fig_name)
+        print "The figuare save as", save_fig_name
     pyplot.clf()
