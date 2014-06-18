@@ -3,12 +3,34 @@ from matplotlib import pyplot
 import numpy as np
 from sklearn import cluster
 from matplotlib.patches import Ellipse
+
+class norm_policy(object):
+    NORM, STD_NORM, RANGE_NORM, NONE = range(4)
+
 def normalize(data):
     data = data.astype(np.float32, copy=False)
     max = np.max(data)
     min = np.min(data)
     if (max-min) != 0:
         return (data-min)/(max-min)
+    else:
+        return data
+
+def std_normalize(data):
+    data = data.astype(np.float32, copy=False)
+    mean = np.mean(data)
+    var = np.var(data)
+    if var != 0:
+        return (data-mean)/var
+    else:
+        return data
+
+def std_mean_normalize(data):
+    data = data.astype(np.float32, copy=False)
+    mean = np.mean(data)
+    max_range = np.max(data) - np.min(data)
+    if max_range != 0:
+        return (data-mean)/max_range
     else:
         return data
 
@@ -72,35 +94,62 @@ def plot_cov_ellipse(cov, pos, nstd=2, ax=None, **kwargs):
     
     # Width and height are "full" widths, not radius
     width, height = 2 * nstd * np.sqrt(vals)
-    ellip = Ellipse(xy=pos, width=width, height=height, angle=theta, fill=False, **kwargs)
+    ellip = Ellipse(xy=pos, width=width, height=height, angle=theta, color='y', fill=False, **kwargs)
     ax.add_artist(ellip)
+    print "angle = " + str(theta)
+    print "pos= " + str(pos) + " w = " + str(width) + " h = " + str(height)
     return (ellip, width, height)
 
-def outlier(data, var_x, var_y):
+# will fail when the elipse is oblique
+def multi_gauss_outlier(data, var_x, var_y):
     indexs = []
     mean_x = data[:,0].mean()
     mean_y = data[:,1].mean()
+    print "mean_x = " + str(mean_x) + " mean_y = " + str(mean_y)
     for index, d in enumerate(data):
+        # (x-h)^2/rx%2 + (y-k)^2/ry^2 <= 1
         if ((d[0]-mean_x)**2/var_x**2 + (d[1]-mean_y)**2/var_y**2) <= 1:
-        #if d[0] < (mean_x + var_x) and d[0] > (mean_x - var_x) and d[1] < (mean_y + var_y) and d[1] > (mean_y - var_y):
             continue
         indexs.append(index)
     return indexs
 
-def draw_kmeans(data, n_cluster, author_gender, save_fig_name, weight, is_normalize):
-    legend_x = 10
-    legend_y = 5
-    is_find_outlier = True
-    if is_normalize == "True":
-        data[:, 0] = weight[0] * data[:, 0]
-        data[:, 1] = weight[1] * data[:, 1]
+#ORC refer to http://cs.joensuu.fi/~villeh/35400978.pdf
+def outlier_removal_clustering(data, threshold):
+    centroid = np.mean(data)
+    dist = np.abs(data - centroid)
+    dist_max = np.max(dist)
+    outlyingness = dist/dist_max
+    return np.where(outlyingness > threshold)[0]
+
+def get_normed_data(data, weight, npolicy):
+    data[:, 0] = weight[0] * data[:, 0]
+    data[:, 1] = weight[1] * data[:, 1]
+
+    if npolicy == norm_policy.NORM:
         data[:, 0] = normalize(data[:, 0])
         data[:, 1] = normalize(data[:, 1])
-        legend_x = 0.5
-        legend_y = 0.1
-    min_ylim = -0.2
-    max_xlim = np.max(data[:,0]) + legend_x
-    max_ylim = np.max(data[:,1]) + legend_y
+
+    elif npolicy == norm_policy.STD_NORM:
+        data[:, 0] = std_normalize(data[:, 0])
+        data[:, 1] = std_normalize(data[:, 1])
+
+    elif npolicy == norm_policy.RANGE_NORM:
+        data[:, 0] = std_mean_normalize(data[:, 0])
+        data[:, 1] = std_mean_normalize(data[:, 1])
+
+    return data
+
+def draw_kmeans(data, n_cluster, author_gender, save_fig_name):
+    is_find_outlier = True
+
+    max_x = np.max(data[:,0])
+    max_y = np.max(data[:,1])
+    legend_x = max_x/3
+    legend_y = max_y/3
+    min_xlim = -max_x/10
+    min_ylim = -max_y/10
+    max_xlim = max_x + legend_x
+    max_ylim = max_y + legend_y
     number_of_person = len(data)
     mark_shape = ['o', '^', 's', '*']
     mark_color = ['b', 'g', 'r', 'y']
@@ -111,14 +160,17 @@ def draw_kmeans(data, n_cluster, author_gender, save_fig_name, weight, is_normal
     labels = kmeans.labels_
     centroids = kmeans.cluster_centers_
 
-    for i, sorted_index in enumerate(np.argsort(centroids[:,0])):
+    for i, sorted_index in enumerate(np.argsort(centroids[:,1])):
         original_indexs = np.where(labels==sorted_index)
         ds = data[original_indexs]
         pyplot.plot(ds[:,0], ds[:,1], mark_shape[i], color=mark_color[i], label=mark_labels[i])
+        #elipse, width, height = plot_point_cov(ds[:,:])
         if mark_labels[i] == 'high':
             elipse, width, height = plot_point_cov(ds[:,:])
             if is_find_outlier:
-                indexs = outlier(ds[:,:], width/2, height/2)
+                indexs = outlier_removal_clustering(ds, 0.6)
+                
+            #    indexs = multi_gauss_outlier(ds[:,:], width/2.0, height/2.0)
                 pyplot.plot(ds[indexs,0], ds[indexs,1], mark_shape[3], color=mark_color[3], label=mark_labels[3])
                 print "outlier(original indexs):", original_indexs[0][indexs]
                 print data[original_indexs[0][indexs]]
